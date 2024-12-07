@@ -371,6 +371,8 @@ module Isuports
       name = params[:name]
       validate_tenant_name!(name)
 
+      #lock
+      admin_db.xquery("LOCK TABLES tenant WRITE")
       now = Time.now.to_i
       begin
         admin_db.xquery('INSERT INTO tenant (name, display_name, created_at, updated_at) VALUES (?, ?, ?, ?)', name, display_name, now, now)
@@ -385,6 +387,7 @@ module Isuports
       #       /api/admin/tenants/billingにアクセスされるとエラーになりそう
       #       ロックなどで対処したほうが良さそう
       create_tenant_db(id)
+      admin_db.xquery("UNLOCK TABLES")
       json(
         status: true,
         data: {
