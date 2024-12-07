@@ -620,7 +620,7 @@ module Isuports
 
         existing_players_on_csv =  Set.new()
         logger.error(csv)
-        csv.map do |row|
+        csv.each do |row|
           existing_players_on_csv << row['player_id']
         end
         logger.error(csv)
