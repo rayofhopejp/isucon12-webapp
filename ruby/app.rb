@@ -660,12 +660,12 @@ module Isuports
           
 
         #logger.error("!!!!!!!!!!!!!!player_score_rows!!!!!!!#{player_score_rows}")
-        tenant_db.execute('BEGIN')
+        tenant_db.execute('BEGIN TRANSACTION;')
         tenant_db.execute('DELETE FROM player_score WHERE tenant_id = ? AND competition_id = ?', [v.tenant_id, competition_id])
         query = 'INSERT INTO player_score (id, tenant_id, player_id, competition_id, score, row_num, created_at, updated_at) VALUES'
         player_score_rows.each { |row| query += "('#{row.id}', '#{row.tenant_id}', '#{row.player_id}', '#{row.competition_id}', '#{row.score}', '#{row.row_num}', '#{row.created_at}', '#{row.updated_at}'),"}
         tenant_db.execute(query.chop)
-        tenant_db.execute('COMMIT')
+        tenant_db.execute('COMMIT TRANSACTION;')
         #tenant_db.execute("INSERT INTO player_score (id, tenant_id, player_id, competition_id, score, row_num, created_at, updated_at) VALUES #{player_score_rows.join(",")}", )
         #tenant_db.execute('DELETE FROM player_score WHERE tenant_id = ? AND competition_id = ?', [v.tenant_id, competition_id])
         #player_score_rows.each do |ps|
