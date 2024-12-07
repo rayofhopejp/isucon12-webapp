@@ -631,7 +631,7 @@ module Isuports
         # DELETEしたタイミングで参照が来ると空っぽのランキングになるのでロックする
         flock_by_tenant_id(v.tenant_id) do
           player_score_rows = csv.map.with_index do |row, row_num|
-            #if row.size != 2
+            if row.size != 2
               raise "row must have two columns: #{row}"
             end
             #player_id, score_str = *row.values_at('player_id', 'score')
