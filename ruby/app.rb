@@ -623,11 +623,11 @@ module Isuports
           existing_players_on_csv << row['player_id']
           row
         end
-        logger.error("!!!!!existing_players_on_csv!!!!! #{"'"+existing_players_on_csv.join("','")+"'"}")
+        #logger.error("!!!!!existing_players_on_csv!!!!! #{"'"+existing_players_on_csv.join("','")+"'"}")
         player_count = tenant_db.execute("SELECT COUNT(*) as count FROM player WHERE id IN (#{"'"+existing_players_on_csv.join("','")+"'"})")
-        logger.error("!!!!!player_count!!!!! #{player_count}")
-        logger.error("!!!!!player_count[0].count!!!!! #{player_count[0]["count"]}")
-        logger.error("!!!!!existing_players_on_csv.size!!!!! #{existing_players_on_csv.size}")
+        #logger.error("!!!!!player_count!!!!! #{player_count}")
+        #logger.error("!!!!!player_count[0].count!!!!! #{player_count[0]["count"]}")
+        #logger.error("!!!!!existing_players_on_csv.size!!!!! #{existing_players_on_csv.size}")
         if player_count[0]["count"] != existing_players_on_csv.size
           raise HttpError.new(400, "some player not found")
         end
@@ -664,7 +664,7 @@ module Isuports
 
           tenant_db.execute('DELETE FROM player_score WHERE tenant_id = ? AND competition_id = ?', [v.tenant_id, competition_id])
           #tenant_db.execute('INSERT INTO player_score (id, tenant_id, player_id, competition_id, score, row_num, created_at, updated_at) VALUES (:id, :tenant_id, :player_id, :competition_id, :score, :row_num, :created_at, :updated_at)', player_score_rows)
-          logger.error("#{player_score_rows.join(",")}")
+          logger.error("#{player_score_rows}")
           tenant_db.execute("INSERT INTO player_score (id, tenant_id, player_id, competition_id, score, row_num, created_at, updated_at) VALUES #{player_score_rows.join(",")}", )
           #tenant_db.execute('DELETE FROM player_score WHERE tenant_id = ? AND competition_id = ?', [v.tenant_id, competition_id])
           #player_score_rows.each do |ps|
