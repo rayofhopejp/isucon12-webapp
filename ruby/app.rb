@@ -623,11 +623,11 @@ module Isuports
           existing_players_on_csv << row['player_id']
           row
         end
-        #logger.error("!!!!!existing_players_on_csv!!!!! #{"'"+existing_players_on_csv.join("','")+"'"}")
+        logger.error("!!!!!existing_players_on_csv!!!!! #{"'"+existing_players_on_csv.join("','")+"'"}")
         player_count = tenant_db.execute("SELECT COUNT(*) as count FROM player WHERE id IN (#{"'"+existing_players_on_csv.join("','")+"'"})")
-        #logger.error("!!!!!player_count!!!!! #{player_count}")
-        #logger.error("!!!!!player_count[0].count!!!!! #{player_count[0]["count"]}")
-        #logger.error("!!!!!existing_players_on_csv.size!!!!! #{existing_players_on_csv.size}")
+        logger.error("!!!!!player_count!!!!! #{player_count}")
+        logger.error("!!!!!player_count[0].count!!!!! #{player_count[0]["count"]}")
+        logger.error("!!!!!existing_players_on_csv.size!!!!! #{existing_players_on_csv.size}")
         if player_count[0]["count"] != existing_players_on_csv.size
           raise HttpError.new(400, "some player not found")
         end
