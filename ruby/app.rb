@@ -790,7 +790,7 @@ module Isuports
             ranks.push(CompetitionRank.new(
               score: ps.score,
               player_id: ps.player_id,
-              player_display_name: ps.player_display_name,
+              player_display_name: ps.display_name,
               row_num: ps.row_num,
             ))
           end
