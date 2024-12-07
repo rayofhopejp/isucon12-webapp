@@ -621,7 +621,7 @@ module Isuports
         existing_players_on_csv =  Set.new()
         logger.error(csv)
         csv.map do |row|
-          existing_players_on_csv << row['player_id'] | row
+          existing_players_on_csv << row['player_id']
         end
         logger.error(csv)
         logger.error("!!!!!existing_players_on_csv!!!!! #{"'"+existing_players_on_csv.join("','")+"'"}")
