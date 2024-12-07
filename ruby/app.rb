@@ -646,6 +646,9 @@ module Isuports
             #end
             score = Integer(score_str, 10)
             id = dispense_id
+            if !id
+              logger.error("dispense_id is null")
+            end
             now = Time.now.to_i
             PlayerScoreRow.new(
               id:,
