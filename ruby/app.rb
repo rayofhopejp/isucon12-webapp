@@ -621,6 +621,7 @@ module Isuports
         existing_players_on_csv =  Set.new()
         logger.error(csv)
         csv.each do |row|
+          logger.error("!!!!!row!!!!! #{row}")
           existing_players_on_csv << row['player_id']
         end
         logger.error(csv)
@@ -633,7 +634,9 @@ module Isuports
           raise HttpError.new(400, "some player not found")
         end
         
-        csv = CSV.new(csv_file, headers: true, return_headers: true)
+        csv.each do |row|
+          logger.error("!!!!!row!!!!! #{row}")
+        end
         # DELETEしたタイミングで参照が来ると空っぽのランキングになるのでロックする
         flock_by_tenant_id(v.tenant_id) do
           player_score_rows = csv.map.with_index do |row, row_num|
@@ -663,7 +666,7 @@ module Isuports
 
           logger.error("!!!!!!!!!!!!!!player_score_rows!!!!!!!#{player_score_rows}")
           tenant_db.execute('DELETE FROM player_score WHERE tenant_id = ? AND competition_id = ?', [v.tenant_id, competition_id])
-          if player_score_rows
+          if player_score_rows.size
             tenant_db.execute('INSERT INTO player_score (id, tenant_id, player_id, competition_id, score, row_num, created_at, updated_at) VALUES (:id, :tenant_id, :player_id, :competition_id, :score, :row_num, :created_at, :updated_at)', player_score_rows)
           end
          
