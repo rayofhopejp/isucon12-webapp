@@ -634,7 +634,7 @@ module Isuports
             if row.size != 2
               raise "row must have two columns: #{row}"
             end
-            #player_id, score_str = *row.values_at('player_id', 'score')
+            player_id, score_str = *row.values_at('player_id', 'score')
             #unless retrieve_player(tenant_db, player_id)
             #  # 存在しない参加者が含まれている
             #  raise HttpError.new(400, "player not found: #{player_id}")
