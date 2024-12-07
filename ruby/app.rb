@@ -623,7 +623,7 @@ module Isuports
           existing_players_on_csv << row['player_id']
           row
         end
-        logger.error("!!!!!existing_players_on_csv!!!!! #{existing_players_on_csv}")
+        logger.error("!!!!!existing_players_on_csv!!!!! #{existing_players_on_csv.join(",")}")
         player_count = tenant_db.execute("SELECT COUNT(*) as count FROM player WHERE id IN (#{existing_players_on_csv.join(",")}")
         logger.error("!!!!!player_count!!!!! #{player_count}")
         if player_count != existing_players_on_csv.size
