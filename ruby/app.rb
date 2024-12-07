@@ -627,7 +627,7 @@ module Isuports
             raise "row must have two columns: #{row}"
           end
           player_id, score_str = *row.values_at('player_id', 'score')
-          logger.error(player_id,score_str )
+          logger.error(player_id )
           #unless retrieve_player(tenant_db, player_id)
           #  # 存在しない参加者が含まれている
           #  raise HttpError.new(400, "player not found: #{player_id}")
