@@ -619,13 +619,13 @@ module Isuports
         end
 
         #existing_players_on_csv =  Set.new()
-        csv.foreach({ |row| existing_players_on_csv << row['player_id'] })
-        logger.error("!!!!!existing_players_on_csv!!!!! #{existing_players_on_csv}")
-        player_count = tenant_db.execute('SELECT COUNT(*) as count FROM player WHERE id IN (?)', existing_players_on_csv.to_a)
-        logger.error("!!!!!player_count!!!!! #{player_count}")
-        if player_count != existing_players_on_csv.size
-          raise HttpError.new(400, "some player not found")
-        end
+        #csv.foreach({ |row| existing_players_on_csv << row['player_id'] })
+        #logger.error("!!!!!existing_players_on_csv!!!!! #{existing_players_on_csv}")
+        #player_count = tenant_db.execute('SELECT COUNT(*) as count FROM player WHERE id IN (?)', existing_players_on_csv.to_a)
+        #logger.error("!!!!!player_count!!!!! #{player_count}")
+        #if player_count != existing_players_on_csv.size
+        #  raise HttpError.new(400, "some player not found")
+        #end
         
         
         # DELETEしたタイミングで参照が来ると空っぽのランキングになるのでロックする
