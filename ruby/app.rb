@@ -620,9 +620,32 @@ module Isuports
 
         existing_players_on_csv =  Set.new()
         logger.error(csv)
-        csv.each do |row|
+        csv.map.with_index do |row, row_num|
           logger.error("!!!!!row!!!!! #{row}")
           existing_players_on_csv << row['player_id']
+          player_score_rows = csv.map.with_index do |row, row_num|
+          if row.size != 2
+            raise "row must have two columns: #{row}"
+          end
+          player_id, score_str = *row.values_at('player_id', 'score')
+          logger.error(player_id,score_str )
+          #unless retrieve_player(tenant_db, player_id)
+          #  # 存在しない参加者が含まれている
+          #  raise HttpError.new(400, "player not found: #{player_id}")
+          #end
+          score = Integer(score_str, 10)
+          id = dispense_id
+          now = Time.now.to_i
+          PlayerScoreRow.new(
+            id:,
+            tenant_id: v.tenant_id,
+            player_id:,
+            competition_id:,
+            score:,
+            row_num:,
+            created_at: now,
+            updated_at: now,
+          )
         end
         logger.error(csv)
         logger.error("!!!!!existing_players_on_csv!!!!! #{"'"+existing_players_on_csv.join("','")+"'"}")
@@ -633,36 +656,9 @@ module Isuports
         if player_count[0]["count"] != existing_players_on_csv.size
           raise HttpError.new(400, "some player not found")
         end
-        
-        csv.each do |row|
-          logger.error("!!!!!row!!!!! #{row}")
-        end
         # DELETEしたタイミングで参照が来ると空っぽのランキングになるのでロックする
         flock_by_tenant_id(v.tenant_id) do
-          player_score_rows = csv.map.with_index do |row, row_num|
-            if row.size != 2
-              raise "row must have two columns: #{row}"
-            end
-            player_id, score_str = *row.values_at('player_id', 'score')
-            logger.error(player_id,score_str )
-            #unless retrieve_player(tenant_db, player_id)
-            #  # 存在しない参加者が含まれている
-            #  raise HttpError.new(400, "player not found: #{player_id}")
-            #end
-            score = Integer(score_str, 10)
-            id = dispense_id
-            now = Time.now.to_i
-            PlayerScoreRow.new(
-              id:,
-              tenant_id: v.tenant_id,
-              player_id:,
-              competition_id:,
-              score:,
-              row_num:,
-              created_at: now,
-              updated_at: now,
-            )
-          end
+          
 
           logger.error("!!!!!!!!!!!!!!player_score_rows!!!!!!!#{player_score_rows}")
           tenant_db.execute('DELETE FROM player_score WHERE tenant_id = ? AND competition_id = ?', [v.tenant_id, competition_id])
