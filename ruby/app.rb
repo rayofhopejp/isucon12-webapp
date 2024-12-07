@@ -618,17 +618,27 @@ module Isuports
           raise HttpError.new(400, 'invalid CSV headers')
         end
 
+        existing_players_on_csv =  Set.new()
+        csv.foreach({ |row| existing_players_on_csv << row['player_id'] })
+        logger.error("!!!!!existing_players_on_csv!!!!! #{existing_players_on_csv}")
+        player_count = tenant_db.execute('SELECT COUNT(*) as count FROM player WHERE id IN (?)', existing_players_on_csv.to_a)
+        logger.error("!!!!!player_count!!!!! #{player_count}")
+        if player_count != existing_players_on_csv.size
+          raise HttpError.new(400, "some player not found")
+
+        
+        
         # DELETEしたタイミングで参照が来ると空っぽのランキングになるのでロックする
         flock_by_tenant_id(v.tenant_id) do
           player_score_rows = csv.map.with_index do |row, row_num|
-            if row.size != 2
+            #if row.size != 2
               raise "row must have two columns: #{row}"
             end
-            player_id, score_str = *row.values_at('player_id', 'score')
-            unless retrieve_player(tenant_db, player_id)
-              # 存在しない参加者が含まれている
-              raise HttpError.new(400, "player not found: #{player_id}")
-            end
+            #player_id, score_str = *row.values_at('player_id', 'score')
+            #unless retrieve_player(tenant_db, player_id)
+            #  # 存在しない参加者が含まれている
+            #  raise HttpError.new(400, "player not found: #{player_id}")
+            #end
             score = Integer(score_str, 10)
             id = dispense_id
             now = Time.now.to_i
@@ -645,8 +655,11 @@ module Isuports
           end
 
           tenant_db.execute('DELETE FROM player_score WHERE tenant_id = ? AND competition_id = ?', [v.tenant_id, competition_id])
-          player_score_rows.each do |ps|
-            tenant_db.execute('INSERT INTO player_score (id, tenant_id, player_id, competition_id, score, row_num, created_at, updated_at) VALUES (:id, :tenant_id, :player_id, :competition_id, :score, :row_num, :created_at, :updated_at)', ps.to_h)
+          tenant_db.execute('INSERT INTO player_score (id, tenant_id, player_id, competition_id, score, row_num, created_at, updated_at) VALUES (:id, :tenant_id, :player_id, :competition_id, :score, :row_num, :created_at, :updated_at)', player_score_rows)
+          
+          #tenant_db.execute('DELETE FROM player_score WHERE tenant_id = ? AND competition_id = ?', [v.tenant_id, competition_id])
+          #player_score_rows.each do |ps|
+          #  tenant_db.execute('INSERT INTO player_score (id, tenant_id, player_id, competition_id, score, row_num, created_at, updated_at) VALUES (:id, :tenant_id, :player_id, :competition_id, :score, :row_num, :created_at, :updated_at)', ps.to_h)
           end
 
           json(
