@@ -799,53 +799,53 @@ module Isuports
           end
 
         # player_scoreを読んでいるときに更新が走ると不整合が起こるのでロックを取得する
-        flock_by_tenant_id(v.tenant_id) do
-          ranks = []
-          scored_player_set = Set.new
-          tenant_db.execute('SELECT player_score.*,player.display_name FROM player_score JOIN player ON player.id = player_score.player_id  WHERE player_score.tenant_id = ? AND player_score.competition_id = ? ORDER BY row_num DESC', [tenant.id, competition_id]) do |row|
-            ps = PlayerScoreRowwithDisplayName.new(row)
-            # player_scoreが同一player_id内ではrow_numの降順でソートされているので
-            # 現れたのが2回目以降のplayer_idはより大きいrow_numでスコアが出ているとみなせる
-            if scored_player_set.member?(ps.player_id)
-              next
-            end
-            scored_player_set.add(ps.player_id)
-            #player = retrieve_player(tenant_db, ps.player_id)
-            ranks.push(CompetitionRank.new(
-              score: ps.score,
-              player_id: ps.player_id,
-              player_display_name: ps.display_name,
-              row_num: ps.row_num,
-            ))
+        #flock_by_tenant_id(v.tenant_id) do
+        ranks = []
+        scored_player_set = Set.new
+        tenant_db.execute('SELECT player_score.*,player.display_name FROM player_score JOIN player ON player.id = player_score.player_id  WHERE player_score.tenant_id = ? AND player_score.competition_id = ? ORDER BY row_num DESC', [tenant.id, competition_id]) do |row|
+          ps = PlayerScoreRowwithDisplayName.new(row)
+          # player_scoreが同一player_id内ではrow_numの降順でソートされているので
+          # 現れたのが2回目以降のplayer_idはより大きいrow_numでスコアが出ているとみなせる
+          if scored_player_set.member?(ps.player_id)
+            next
           end
-          ranks.sort! do |a, b|
-            if a.score == b.score
-              a.row_num <=> b.row_num
-            else
-              b.score <=> a.score
-            end
-          end
-          paged_ranks = ranks.drop(rank_after).take(100).map.with_index do |rank, i|
-            {
-              rank: rank_after + i + 1,
-              score: rank.score,
-              player_id: rank.player_id,
-              player_display_name: rank.player_display_name,
-            }
-          end
-
-          json(
-            status: true,
-            data: {
-              competition: {
-                id: competition.id,
-                title: competition.title,
-                is_finished: !competition.finished_at.nil?,
-              },
-              ranks: paged_ranks,
-            },
-          )
+          scored_player_set.add(ps.player_id)
+          #player = retrieve_player(tenant_db, ps.player_id)
+          ranks.push(CompetitionRank.new(
+            score: ps.score,
+            player_id: ps.player_id,
+            player_display_name: ps.display_name,
+            row_num: ps.row_num,
+          ))
         end
+        ranks.sort! do |a, b|
+          if a.score == b.score
+            a.row_num <=> b.row_num
+          else
+            b.score <=> a.score
+          end
+        end
+        paged_ranks = ranks.drop(rank_after).take(100).map.with_index do |rank, i|
+          {
+            rank: rank_after + i + 1,
+            score: rank.score,
+            player_id: rank.player_id,
+            player_display_name: rank.player_display_name,
+          }
+        end
+
+        json(
+          status: true,
+          data: {
+            competition: {
+              id: competition.id,
+              title: competition.title,
+              is_finished: !competition.finished_at.nil?,
+            },
+            ranks: paged_ranks,
+          },
+        )
+        #end
       end
     end
 
