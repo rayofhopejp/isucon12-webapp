@@ -619,7 +619,10 @@ module Isuports
         end
 
         existing_players_on_csv =  Set.new()
-        csv.foreach(){ |row| existing_players_on_csv << row['player_id'] }
+        csv.map do |row|
+          existing_players_on_csv << row['player_id']
+        end
+        csv.foreach(){ |row|  }
         logger.error("!!!!!existing_players_on_csv!!!!! #{existing_players_on_csv}")
         player_count = tenant_db.execute('SELECT COUNT(*) as count FROM player WHERE id IN (?)', existing_players_on_csv.to_a)
         logger.error("!!!!!player_count!!!!! #{player_count}")
