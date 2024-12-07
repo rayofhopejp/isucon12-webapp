@@ -620,7 +620,7 @@ module Isuports
 
         existing_players_on_csv =  Set.new()
         logger.error(csv)
-        csv.map.with_index do |row, row_num|
+        player_score_rows = csv.map.with_index do |row, row_num|
           logger.error("!!!!!row!!!!! #{row}")
           existing_players_on_csv << row['player_id']
           if row.size != 2
