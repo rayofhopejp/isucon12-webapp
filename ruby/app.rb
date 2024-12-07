@@ -46,7 +46,8 @@ module Isuports
     TenantRow = Struct.new(:id, :name, :display_name, :created_at, :updated_at, keyword_init: true)
     PlayerRow = Struct.new(:tenant_id, :id, :display_name, :is_disqualified, :created_at, :updated_at, keyword_init: true)
     CompetitionRow = Struct.new(:tenant_id, :id, :title, :finished_at, :created_at, :updated_at, keyword_init: true)
-    PlayerScoreRow = Struct.new(:tenant_id,:display_name, :id, :player_id, :competition_id, :score, :row_num, :created_at, :updated_at, keyword_init: true)
+    PlayerScoreRow = Struct.new(:tenant_id, :id, :player_id, :competition_id, :score, :row_num, :created_at, :updated_at, keyword_init: true)
+    PlayerScoreRowwithDisplayName = Struct.new(:tenant_id,:display_name, :id, :player_id, :competition_id, :score, :row_num, :created_at, :updated_at, keyword_init: true)
 
     class HttpError < StandardError
       attr_reader :code
@@ -779,7 +780,7 @@ module Isuports
           ranks = []
           scored_player_set = Set.new
           tenant_db.execute('SELECT player_score.*,player.display_name FROM player_score JOIN player ON player.id = player_score.player_id  WHERE player_score.tenant_id = ? AND player_score.competition_id = ? ORDER BY row_num DESC', [tenant.id, competition_id]) do |row|
-            ps = PlayerScoreRow.new(row)
+            ps = PlayerScoreRowwithDisplayName.new(row)
             # player_scoreが同一player_id内ではrow_numの降順でソートされているので
             # 現れたのが2回目以降のplayer_idはより大きいrow_numでスコアが出ているとみなせる
             if scored_player_set.member?(ps.player_id)
