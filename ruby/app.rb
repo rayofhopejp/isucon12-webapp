@@ -623,7 +623,6 @@ module Isuports
         csv.map.with_index do |row, row_num|
           logger.error("!!!!!row!!!!! #{row}")
           existing_players_on_csv << row['player_id']
-          player_score_rows = csv.map.with_index do |row, row_num|
           if row.size != 2
             raise "row must have two columns: #{row}"
           end
