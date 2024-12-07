@@ -633,7 +633,7 @@ module Isuports
           raise HttpError.new(400, "some player not found")
         end
         
-        
+        csv = CSV.new(csv_file, headers: true, return_headers: true)
         # DELETEしたタイミングで参照が来ると空っぽのランキングになるのでロックする
         flock_by_tenant_id(v.tenant_id) do
           player_score_rows = csv.map.with_index do |row, row_num|
@@ -648,9 +648,6 @@ module Isuports
             #end
             score = Integer(score_str, 10)
             id = dispense_id
-            if !id
-              logger.error("dispense_id is null")
-            end
             now = Time.now.to_i
             PlayerScoreRow.new(
               id:,
@@ -665,9 +662,11 @@ module Isuports
           end
 
           tenant_db.execute('DELETE FROM player_score WHERE tenant_id = ? AND competition_id = ?', [v.tenant_id, competition_id])
-          #tenant_db.execute('INSERT INTO player_score (id, tenant_id, player_id, competition_id, score, row_num, created_at, updated_at) VALUES (:id, :tenant_id, :player_id, :competition_id, :score, :row_num, :created_at, :updated_at)', player_score_rows)
+          if player_score_rows
+            tenant_db.execute('INSERT INTO player_score (id, tenant_id, player_id, competition_id, score, row_num, created_at, updated_at) VALUES (:id, :tenant_id, :player_id, :competition_id, :score, :row_num, :created_at, :updated_at)', player_score_rows)
+          end
           logger.error("#{player_score_rows}")
-          tenant_db.execute("INSERT INTO player_score (id, tenant_id, player_id, competition_id, score, row_num, created_at, updated_at) VALUES #{player_score_rows.join(",")}", )
+          #tenant_db.execute("INSERT INTO player_score (id, tenant_id, player_id, competition_id, score, row_num, created_at, updated_at) VALUES #{player_score_rows.join(",")}", )
           #tenant_db.execute('DELETE FROM player_score WHERE tenant_id = ? AND competition_id = ?', [v.tenant_id, competition_id])
           #player_score_rows.each do |ps|
           #  tenant_db.execute('INSERT INTO player_score (id, tenant_id, player_id, competition_id, score, row_num, created_at, updated_at) VALUES (:id, :tenant_id, :player_id, :competition_id, :score, :row_num, :created_at, :updated_at)', ps.to_h)
